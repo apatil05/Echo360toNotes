@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Echo360 Notes</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        width: 320px;
+        margin: 0;
+        padding: 16px;
+        background: #1e1e1e;
+        color: #e6e6e6;
+      }
+      h1 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 12px;
+        color: #ffffff;
+      }
+      .row {
+        font-size: 12px;
+        margin: 6px 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .label {
+        color: #9aa0a6;
+        flex-shrink: 0;
+      }
+      .value {
+        color: #4ade80;
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .value.missing { color: #f87171; }
+      .value.muted { color: #6b7280; }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        background: #2d2d2d;
+        border: 1px solid #3f3f3f;
+        color: #e6e6e6;
+        padding: 6px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+      input:focus { outline: none; border-color: #60a5fa; }
+      button {
+        width: 100%;
+        margin-top: 12px;
+        padding: 10px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover { background: #1d4ed8; }
+      button:disabled { background: #374151; cursor: not-allowed; }
+      #status {
+        margin-top: 12px;
+        font-size: 12px;
+        min-height: 16px;
+        white-space: pre-wrap;
+        color: #d1d5db;
+      }
+      #status.error { color: #f87171; }
+      #status.success { color: #4ade80; }
+      .field { margin-top: 8px; }
+      .field-label {
+        font-size: 11px;
+        color: #9aa0a6;
+        margin-bottom: 2px;
+      }
+      input[type="file"] {
+        font-size: 11px;
+        color: #9aa0a6;
+        padding: 4px 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+      }
+      input[type="file"]::file-selector-button {
+        background: #2d2d2d;
+        border: 1px solid #3f3f3f;
+        color: #e6e6e6;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        cursor: pointer;
+        margin-right: 6px;
+      }
+      .slides-status {
+        font-size: 11px;
+        color: #4ade80;
+        margin-top: 2px;
+        min-height: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🎙️ Echo360 Notes Converter</h1>
+
+    <div class="row"><span class="label">Server:</span> <span id="server-status" class="value muted">checking...</span></div>
+    <div class="row"><span class="label">Transcript URL:</span> <span id="transcript-status" class="value muted">waiting...</span></div>
+    <div class="row"><span class="label">Video URL:</span> <span id="video-status" class="value muted">waiting...</span></div>
+    <div class="row"><span class="label">Lesson:</span> <span id="lesson-status" class="value muted">—</span></div>
+
+    <div class="field">
+      <div class="field-label">Course (for filename + frontmatter)</div>
+      <input id="course" type="text" placeholder="e.g. CS383" />
+    </div>
+
+    <div class="field">
+      <div class="field-label">Topic (optional)</div>
+      <input id="topic" type="text" placeholder="e.g. Sorting Algorithms" />
+    </div>
+
+    <div class="field">
+      <div class="field-label">Lecture Slides PDF (optional)</div>
+      <input id="slides" type="file" accept=".pdf" />
+      <div id="slides-status" class="slides-status"></div>
+    </div>
+
+    <button id="generate" disabled>Generate Notes</button>
+
+    <div id="status"></div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
