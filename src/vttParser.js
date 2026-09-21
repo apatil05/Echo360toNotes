@@ -1,5 +1,9 @@
+// Cue timing line for both WebVTT ("00:01.000 --> ...", "00:00:01.000 --> ...")
+// and SRT ("00:00:01,000 --> ..."), which the extension also captures.
+const TIMESTAMP_LINE = /^(?:\d+:)?\d{1,2}:\d{2}[.,]\d{3}\s+-->\s+/;
+
 /**
- * Converts a WebVTT (.vtt) file string into clean plain text.
+ * Converts a WebVTT (.vtt) or SubRip (.srt) caption file into clean plain text.
  *
  * VTT format looks like:
  *   WEBVTT
@@ -10,8 +14,9 @@
  *   00:00:05.000 --> 00:00:08.000
  *   Today we'll be covering geological time.
  *
- * This strips all timestamps and metadata, deduplicates overlapping cues,
- * and returns a single clean paragraph-style string.
+ * Only text inside a cue (after a timing line, before the next blank line) is kept,
+ * so headers, NOTE/STYLE/REGION blocks and cue identifiers are skipped — while caption
+ * text that happens to be a bare number ("1945") or start with "NOTE" is preserved.
  *
  * @param {string} vttContent
  * @returns {string}
@@ -25,47 +30,36 @@ export function parseVTT(vttContent) {
   for (const raw of lines) {
     const line = raw.trim();
 
-    // Skip the WEBVTT header and NOTE/STYLE/REGION blocks
-    if (line === 'WEBVTT' || line.startsWith('NOTE') || line.startsWith('STYLE') || line.startsWith('REGION')) {
-      inCue = false;
-      continue;
-    }
-
-    // Timestamp line (e.g. "00:00:01.000 --> 00:00:04.500 ...")
-    if (/^\d{2}:\d{2}[\d:.]+\s+-->\s+/.test(line)) {
+    if (TIMESTAMP_LINE.test(line)) {
       inCue = true;
       continue;
     }
 
-    // Blank line resets cue state
+    // Blank line ends the cue
     if (line === '') {
       inCue = false;
       continue;
     }
 
-    // Skip cue ID lines (pure numbers or UUIDs that precede timestamps)
-    if (/^\d+$/.test(line) || /^[0-9a-f-]{36}$/i.test(line)) {
-      continue;
-    }
+    if (!inCue) continue;
 
-    if (inCue) {
-      // Strip inline VTT tags like <c>, <v Speaker>, <b>, <i>, timestamps
-      const text = line
-        .replace(/<[^>]+>/g, '')   // remove all VTT tags
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&nbsp;/g, ' ')
-        .trim();
+    // Strip inline VTT tags like <c>, <v Speaker>, <b>, <i>, timestamps
+    const text = line
+      .replace(/<[^>]+>/g, '')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&') // last, so "&amp;lt;" decodes to "&lt;" not "<"
+      .trim();
 
-      if (text && text !== lastLine) {
-        textLines.push(text);
-        lastLine = text;
-      }
+    if (text && text !== lastLine) {
+      textLines.push(text);
+      lastLine = text;
     }
   }
 
-  // Join into paragraphs — add a line break when there's a natural sentence boundary
   return textLines
     .join(' ')
     .replace(/\s+/g, ' ')
@@ -73,68 +67,61 @@ export function parseVTT(vttContent) {
 }
 
 /**
- * Parses raw transcript content — handles both VTT and Echo360 JSON formats.
+ * Parses raw transcript content — handles VTT, SRT, Echo360 JSON and plain text.
  * Call this with content already fetched (e.g. from inside the browser session).
  *
- * @param {string} content - Raw transcript content (VTT or JSON string)
- * @returns {string} - Plain text transcript
+ * @param {string} content - Raw transcript content
+ * @returns {string} - Plain text transcript ('' if nothing readable was found)
  */
 export function parseTranscriptContent(content) {
   if (!content || !content.trim()) return '';
+  const trimmed = content.replace(/^﻿/, '').trim();
 
   // Try JSON first (Echo360 /transcript API returns JSON)
-  if (content.trim().startsWith('{') || content.trim().startsWith('[')) {
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
     try {
-      const json = JSON.parse(content);
+      const json = JSON.parse(trimmed);
       return parseEcho360TranscriptJSON(json);
     } catch {
-      // fall through to VTT parser
+      // fall through to caption parser
     }
   }
 
-  // VTT format
-  if (content.includes('WEBVTT') || /\d{2}:\d{2}.*-->/.test(content)) {
-    return parseVTT(content);
+  if (trimmed.startsWith('WEBVTT') || /\d{2}:\d{2}[.,]\d{3}\s+-->/.test(trimmed)) {
+    return parseVTT(trimmed);
   }
 
   // Plain text fallback
-  return content.trim();
+  return trimmed;
 }
+
+const TEXT_KEYS = ['text', 'content', 'caption'];
 
 /**
  * Parses the Echo360 JSON transcript API response into plain text.
  * Handles multiple known response shapes.
  */
 function parseEcho360TranscriptJSON(data) {
-  const lines = [];
+  const join = (arr) => arr.join(' ').replace(/\s+/g, ' ').trim();
+  const textOf = (item) => {
+    if (typeof item === 'string') return item;
+    for (const k of TEXT_KEYS) if (typeof item?.[k] === 'string') return item[k];
+    return '';
+  };
 
   // Shape 1: { words: [{ text, ... }] }
   if (Array.isArray(data?.words)) {
-    return data.words.map(w => w.text ?? '').join(' ').replace(/\s+/g, ' ').trim();
+    return join(data.words.map(textOf));
   }
 
-  // Shape 2: { transcript: [{ text }] } or { data: [{ text }] }
-  const items = data?.transcript ?? data?.data ?? data?.captions ?? [];
+  // Shape 2: { transcript: [{ text }] } / { data: [...] } / { captions: [...] }
+  // Shape 3: flat array of strings or { text } objects
+  const items = Array.isArray(data) ? data : (data?.transcript ?? data?.data ?? data?.captions);
   if (Array.isArray(items)) {
-    for (const item of items) {
-      const text = item?.text ?? item?.content ?? item?.caption ?? '';
-      if (text) lines.push(text.trim());
-    }
-    if (lines.length > 0) return lines.join(' ').replace(/\s+/g, ' ').trim();
+    return join(items.map(textOf).filter(Boolean));
   }
 
-  // Shape 3: flat array of strings
-  if (Array.isArray(data)) {
-    for (const item of data) {
-      if (typeof item === 'string') lines.push(item.trim());
-      else if (item?.text) lines.push(item.text.trim());
-    }
-    if (lines.length > 0) return lines.join(' ').replace(/\s+/g, ' ').trim();
-  }
-
-  // Last resort: stringify and strip JSON syntax
-  return JSON.stringify(data)
-    .replace(/[{}\[\]"]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  // Unknown shape (often an error payload like {"error":"not found"}). Returning the
+  // stringified JSON here used to make the model write notes about the error message.
+  return '';
 }
