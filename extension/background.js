@@ -17,38 +17,72 @@ const ECHO360_COOKIE_DOMAINS = [
   'echo360.ca',
 ];
 
-// tabId -> { videoUrl, videoUrls, transcriptUrl, lessonUrl, updatedAt }
+// tabId -> { videoUrl, videoUrls, transcriptUrl, lessonUrl, lessonId, updatedAt }
 // videoUrls is an array because Echo360 splits camera/screen/audio across multiple
 // stream files (s0q0, s1q0, s2q0...). The popup must hand them all to the server
 // so it can pick the one with an audio track.
 const tabState = new Map();
 
+const emptyState = () => ({
+  videoUrl: null,
+  videoUrls: [],
+  transcriptUrl: null,
+  lessonUrl: null,
+  lessonId: null,
+  updatedAt: 0,
+});
+
+const storageKey = (tabId) => `tab:${tabId}`;
+
+// MV3 service workers are killed after ~30s idle, which wiped the in-memory Map — so
+// pressing play and opening the popup a minute later showed nothing captured. Mirror
+// state into storage.session (cleared when the browser closes) and rehydrate on wake.
+const ready = chrome.storage.session.get(null)
+  .then((all) => {
+    for (const [key, value] of Object.entries(all)) {
+      if (key.startsWith('tab:')) tabState.set(Number(key.slice(4)), { ...emptyState(), ...value });
+    }
+  })
+  .catch(() => {});
+
 function getState(tabId) {
-  if (!tabState.has(tabId)) {
-    tabState.set(tabId, {
-      videoUrl: null,
-      videoUrls: [],
-      transcriptUrl: null,
-      lessonUrl: null,
-      updatedAt: 0,
-    });
-  }
+  if (!tabState.has(tabId)) tabState.set(tabId, emptyState());
   return tabState.get(tabId);
+}
+
+async function updateState(tabId, mutate) {
+  await ready;
+  const state = getState(tabId);
+  mutate(state);
+  chrome.storage.session.set({ [storageKey(tabId)]: state }).catch(() => {});
+}
+
+async function clearState(tabId) {
+  await ready;
+  tabState.delete(tabId);
+  await chrome.storage.session.remove(storageKey(tabId)).catch(() => {});
+}
+
+function lessonIdOf(url) {
+  return url?.match(/echo360\.[^/]+\/lesson\/([^/?#]+)/i)?.[1] ?? null;
 }
 
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (details.tabId < 0) return;
     const url = details.url;
-    const state = getState(details.tabId);
 
     if (CAPTION_PATTERNS.some(p => p.test(url))) {
-      state.transcriptUrl = url;
-      state.updatedAt = Date.now();
+      updateState(details.tabId, (state) => {
+        state.transcriptUrl = url;
+        state.updatedAt = Date.now();
+      });
     } else if (VIDEO_PATTERNS.some(p => p.test(url))) {
-      state.videoUrl = url;
-      if (!state.videoUrls.includes(url)) state.videoUrls.push(url);
-      state.updatedAt = Date.now();
+      updateState(details.tabId, (state) => {
+        state.videoUrl = url;
+        if (!state.videoUrls.includes(url)) state.videoUrls.push(url);
+        state.updatedAt = Date.now();
+      });
     }
   },
   {
@@ -65,28 +99,32 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 // Track the lesson page URL itself so we can pass it to the server
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-  if (changeInfo.url && /echo360\.[^/]+\/lesson\//i.test(changeInfo.url)) {
-    const state = getState(tabId);
+  const lessonId = lessonIdOf(changeInfo.url);
+  if (!lessonId) return;
+  updateState(tabId, (state) => {
+    // Moving to a different lecture in the same tab: forget the previous lecture's
+    // captions/streams, otherwise notes get generated from the wrong lecture.
+    if (state.lessonId !== lessonId) Object.assign(state, emptyState());
+    state.lessonId = lessonId;
     state.lessonUrl = changeInfo.url;
-  }
+  });
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
-  tabState.delete(tabId);
+  clearState(tabId);
 });
 
 // Popup ↔ background message API
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'GET_STATE') {
     const tabId = msg.tabId ?? sender.tab?.id;
-    sendResponse(getState(tabId));
+    ready.then(() => sendResponse(getState(tabId)));
     return true;
   }
 
   if (msg.type === 'CLEAR_STATE') {
     const tabId = msg.tabId ?? sender.tab?.id;
-    tabState.delete(tabId);
-    sendResponse({ ok: true });
+    clearState(tabId).then(() => sendResponse({ ok: true }));
     return true;
   }
 

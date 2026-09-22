@@ -98,6 +98,14 @@
         cursor: pointer;
         margin-right: 6px;
       }
+      #diagnostics {
+        display: block;
+        margin-top: 10px;
+        font-size: 11px;
+        color: #9aa0a6;
+        text-align: center;
+      }
+      #diagnostics:hover { color: #e6e6e6; }
       .slides-status {
         font-size: 11px;
         color: #4ade80;
@@ -110,6 +118,7 @@
     <h1>🎙️ Echo360 Notes Converter</h1>
 
     <div class="row"><span class="label">Server:</span> <span id="server-status" class="value muted">checking...</span></div>
+    <div class="row"><span class="label">Model:</span> <span id="model-status" class="value muted">—</span></div>
     <div class="row"><span class="label">Transcript URL:</span> <span id="transcript-status" class="value muted">waiting...</span></div>
     <div class="row"><span class="label">Video URL:</span> <span id="video-status" class="value muted">waiting...</span></div>
     <div class="row"><span class="label">Lesson:</span> <span id="lesson-status" class="value muted">—</span></div>
@@ -133,6 +142,8 @@
     <button id="generate" disabled>Generate Notes</button>
 
     <div id="status"></div>
+
+    <a id="diagnostics" href="#">Run audio download test</a>
 
     <script src="popup.js"></script>
   </body>
