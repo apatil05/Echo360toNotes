@@ -1,0 +1,69 @@
+.course {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.course-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-5);
+  padding-top: var(--space-3);
+}
+
+.course-titles {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.course-titles h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.course-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  color: var(--ink-2);
+}
+
+.course-facts > span:first-child {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.course-facts > span + span::before {
+  content: '·';
+  margin-right: var(--space-2);
+  color: var(--ink-3);
+}
+
+.course-empty {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.course-empty h2 {
+  font-size: var(--text-lg);
+}
+
+.course-empty p {
+  color: var(--ink-2);
+  max-width: 58ch;
+}
+
+.course-skeleton {
+  height: 320px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, var(--surface) 0%, var(--surface-2) 50%, var(--surface) 100%) 0 0 / 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}

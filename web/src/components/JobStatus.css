@@ -1,0 +1,57 @@
+.status {
+  --tone: var(--ink-2);
+  --tone-bg: var(--surface-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 9px 0 7px;
+  border-radius: var(--radius-pill);
+  background: var(--tone-bg);
+  color: var(--tone);
+  font-size: var(--text-xs);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.status svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.status-active {
+  --tone: var(--accent-soft-ink);
+  --tone-bg: var(--accent-soft);
+}
+
+.status-active svg {
+  animation: status-pulse 1.8s ease-in-out infinite;
+}
+
+.status-ok {
+  --tone: var(--ok);
+  --tone-bg: var(--ok-soft);
+}
+
+.status-wait {
+  --tone: var(--wait);
+  --tone-bg: var(--wait-soft);
+}
+
+.status-bad {
+  --tone: var(--bad);
+  --tone-bg: var(--bad-soft);
+}
+
+.status-compact {
+  height: auto;
+  padding: 0;
+  background: none;
+}
+
+@keyframes status-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}

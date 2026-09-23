@@ -1,0 +1,10 @@
+{
+  "app": "node bin/app.js",
+  "watch": { "include": ["bin/**", "lib/**", "lambda/**", "../src/**"] },
+  "context": {
+    "serviceKeyParam": "/echo-notes/supabase-secret-key",
+    "monthlyBudgetUsd": 5,
+    "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
+    "@aws-cdk/core:target-partitions": ["aws"]
+  }
+}

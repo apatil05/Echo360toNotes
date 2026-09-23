@@ -1,0 +1,55 @@
+.message {
+  --tone: var(--accent-soft-ink);
+  --tone-bg: var(--accent-soft);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--tone-bg);
+  color: var(--ink);
+}
+
+.message-ok {
+  --tone: var(--ok);
+  --tone-bg: var(--ok-soft);
+}
+
+.message-wait {
+  --tone: var(--wait);
+  --tone-bg: var(--wait-soft);
+}
+
+.message-bad {
+  --tone: var(--bad);
+  --tone-bg: var(--bad-soft);
+}
+
+.message-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 2px;
+  color: var(--tone);
+}
+
+.message-body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.message-title {
+  font-weight: 650;
+}
+
+.message-text {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.message-action {
+  flex: none;
+  align-self: center;
+}

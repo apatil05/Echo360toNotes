@@ -1,0 +1,45 @@
+/*
+ * Covers are flat fields of colour. The code is set on one scale for every
+ * course (narrow width so typical codes such as "MATH 233" stay on one line);
+ * longer codes wrap at the same size rather than shrinking.
+ */
+.cover {
+  --size: 140px;
+  display: grid;
+  align-items: end;
+  width: var(--size);
+  aspect-ratio: 1;
+  flex: none;
+  padding: calc(var(--size) * 0.085);
+  border-radius: calc(var(--size) * 0.1);
+  background: var(--cover);
+  color: var(--cover-ink);
+  overflow: hidden;
+}
+
+.cover-code {
+  font-family: var(--font-display);
+  font-size: calc(var(--size) * 0.2);
+  font-weight: 780;
+  font-stretch: 75%;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+
+.cover-lg {
+  --size: 176px;
+}
+
+/* Small covers are colour tiles; rows print the code beside them. */
+.cover-sm {
+  --size: 40px;
+  padding: 0;
+  border-radius: 9px;
+}
+
+.cover-xs {
+  --size: 22px;
+  padding: 0;
+  border-radius: 6px;
+}

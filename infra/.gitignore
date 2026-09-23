@@ -1,0 +1,4 @@
+node_modules/
+cdk.out/
+layers/ffmpeg/bin/
+cdk-outputs.json
