@@ -1,0 +1,39 @@
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.wordmark-mark {
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+
+.wordmark-tile {
+  fill: var(--accent);
+}
+
+.wordmark-line {
+  fill: var(--accent-ink);
+}
+
+.wordmark-dot {
+  fill: none;
+  stroke: var(--accent-ink);
+  stroke-width: 1.4;
+}
+
+.wordmark-dot.is-on {
+  fill: var(--accent-ink);
+}
+
+.wordmark-name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}

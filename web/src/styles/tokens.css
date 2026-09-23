@@ -1,0 +1,119 @@
+/*
+ * Design tokens. Light is the default; dark swaps the ground and ink but never
+ * the course cover colours, which are a course's identity in both themes.
+ */
+
+@import '@fontsource-variable/bricolage-grotesque/standard.css';
+@import '@fontsource-variable/hanken-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
+
+:root {
+  color-scheme: light;
+
+  /* Type */
+  --font-display: 'Bricolage Grotesque Variable', 'Hanken Grotesk Variable', system-ui, sans-serif;
+  --font-ui: 'Hanken Grotesk Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.875rem;
+  --text-3xl: 2.5rem;
+
+  /* Space: one rhythm */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  /* Ground and ink */
+  --bg: oklch(99.3% 0.002 286);
+  --surface: oklch(97.4% 0.004 286);
+  --surface-2: oklch(94.8% 0.006 286);
+  --surface-raised: oklch(100% 0 0);
+  --line: oklch(91.5% 0.007 286);
+  --line-strong: oklch(84% 0.009 286);
+  --ink: oklch(21% 0.012 286);
+  --ink-2: oklch(43% 0.014 286);
+  --ink-3: oklch(52% 0.013 286);
+
+  /* The one action colour */
+  --accent: oklch(51% 0.2 283);
+  --accent-hover: oklch(46% 0.2 283);
+  --accent-ink: oklch(99% 0 0);
+  --accent-soft: oklch(95.5% 0.028 285);
+  --accent-soft-ink: oklch(42% 0.17 283);
+
+  /* Status (always paired with an icon and a word) */
+  --ok: oklch(49% 0.11 155);
+  --ok-soft: oklch(95.5% 0.035 155);
+  --wait: oklch(50% 0.11 70);
+  --wait-soft: oklch(96% 0.045 85);
+  --bad: oklch(52% 0.19 27);
+  --bad-soft: oklch(96% 0.025 27);
+
+  --shadow-pop: 0 8px 24px -12px oklch(21% 0.03 286 / 0.28), 0 2px 6px -2px oklch(21% 0.03 286 / 0.12);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 140ms;
+  --dur: 260ms;
+
+  /* Course covers: solid theme colours, identical in both themes */
+  --cover-violet: oklch(60% 0.19 292);
+  --cover-violet-ink: oklch(99% 0 0);
+  --cover-coral: oklch(73% 0.15 42);
+  --cover-coral-ink: oklch(22% 0.05 40);
+  --cover-teal: oklch(72% 0.11 182);
+  --cover-teal-ink: oklch(22% 0.04 190);
+  --cover-blue: oklch(57% 0.16 256);
+  --cover-blue-ink: oklch(99% 0 0);
+  --cover-pink: oklch(72% 0.15 352);
+  --cover-pink-ink: oklch(23% 0.06 350);
+  --cover-amber: oklch(83% 0.14 82);
+  --cover-amber-ink: oklch(24% 0.05 70);
+  --cover-green: oklch(73% 0.14 150);
+  --cover-green-ink: oklch(22% 0.05 150);
+  --cover-indigo: oklch(42% 0.13 274);
+  --cover-indigo-ink: oklch(98% 0.01 274);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: oklch(16.5% 0.008 286);
+  --surface: oklch(19.5% 0.009 286);
+  --surface-2: oklch(23.5% 0.01 286);
+  --surface-raised: oklch(21.5% 0.01 286);
+  --line: oklch(28% 0.011 286);
+  --line-strong: oklch(36% 0.012 286);
+  --ink: oklch(95.5% 0.004 286);
+  --ink-2: oklch(78% 0.008 286);
+  --ink-3: oklch(68% 0.009 286);
+
+  --accent: oklch(72% 0.15 285);
+  --accent-hover: oklch(78% 0.13 285);
+  --accent-ink: oklch(18% 0.03 285);
+  --accent-soft: oklch(28% 0.06 285);
+  --accent-soft-ink: oklch(86% 0.08 285);
+
+  --ok: oklch(76% 0.12 155);
+  --ok-soft: oklch(27% 0.04 155);
+  --wait: oklch(82% 0.12 80);
+  --wait-soft: oklch(28% 0.045 80);
+  --bad: oklch(74% 0.14 27);
+  --bad-soft: oklch(28% 0.05 27);
+
+  --shadow-pop: 0 12px 28px -12px oklch(0% 0 0 / 0.6), 0 2px 6px -2px oklch(0% 0 0 / 0.4);
+}

@@ -1,0 +1,47 @@
+.boot {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+}
+
+.boot .wordmark-mark {
+  width: 40px;
+  height: 40px;
+  animation: boot-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes boot-pulse {
+  50% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+}
+
+.boot-error {
+  display: grid;
+  gap: var(--space-3);
+  width: min(440px, calc(100vw - 2 * var(--space-4)));
+}
+
+.notbuilt {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 560px;
+  padding-top: var(--space-6);
+}
+
+.notbuilt h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  letter-spacing: -0.035em;
+}
+
+.notbuilt p {
+  color: var(--ink-2);
+}
+
+.notbuilt-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
