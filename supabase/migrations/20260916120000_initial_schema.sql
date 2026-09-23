@@ -221,8 +221,8 @@ create trigger lectures_updated_at
   for each row execute function public.set_updated_at();
 
 -- ─── jobs ────────────────────────────────────────────────────────────────────
--- One row per generation attempt. Captioned lectures run in the browser
--- (runner = 'browser'); uncaptioned ones upload audio to S3 and run on Lambda.
+-- One row per generation attempt (runner = 'browser' for captions, 'lambda'
+-- for uploaded audio).
 
 create table public.jobs (
   id uuid primary key default gen_random_uuid(),
